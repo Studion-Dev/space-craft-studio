@@ -1,0 +1,194 @@
+---
+import { Image } from 'astro:assets';
+import { MoveHorizontal } from '@lucide/astro';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  beforeImage: ImageMetadata;
+  afterImage: ImageMetadata;
+  beforeAlt: string;
+  afterAlt: string;
+  beforeLabel?: string;
+  afterLabel?: string;
+  caption?: string;
+  note?: string;
+  class?: string;
+  loading?: 'eager' | 'lazy';
+}
+
+const {
+  beforeImage,
+  afterImage,
+  beforeAlt,
+  afterAlt,
+  beforeLabel = 'Sebelum',
+  afterLabel = 'Sesudah',
+  caption,
+  note,
+  class: className,
+  loading = 'lazy',
+} = Astro.props;
+
+const imageSizes = '(min-width: 1024px) 1100px, 100vw';
+---
+
+<figure
+  class:list={['group', className]}
+  style="--position: 50%"
+  data-before-after
+>
+  <div
+    class="border-border bg-surface-muted relative aspect-[4/3] touch-pan-y overflow-hidden rounded-2xl border select-none md:aspect-[16/10]"
+  >
+    <Image
+      src={afterImage}
+      alt={afterAlt}
+      widths={[640, 960, 1400]}
+      sizes={imageSizes}
+      loading={loading}
+      decoding="async"
+      class="pointer-events-none absolute inset-0 h-full w-full object-cover"
+    />
+
+    <div
+      class="pointer-events-none absolute inset-0 overflow-hidden"
+      style="clip-path: inset(0 calc(100% - var(--position)) 0 0)"
+    >
+      <Image
+        src={beforeImage}
+        alt={beforeAlt}
+        widths={[640, 960, 1400]}
+        sizes={imageSizes}
+        loading={loading}
+        decoding="async"
+        class="h-full w-full object-cover"
+      />
+    </div>
+
+    <span
+      class="bg-foreground/75 text-on-primary absolute top-4 left-4 rounded-full px-3 py-1 text-xs font-medium backdrop-blur-sm"
+    >
+      {beforeLabel}
+    </span>
+
+    <span
+      class="bg-foreground/75 text-on-primary absolute top-4 right-4 rounded-full px-3 py-1 text-xs font-medium backdrop-blur-sm"
+    >
+      {afterLabel}
+    </span>
+
+    <div
+      class="bg-on-primary/80 pointer-events-none absolute inset-y-0 z-10 w-px"
+      style="left: var(--position)"
+      aria-hidden="true"
+    >
+      <span
+        class="border-on-primary/50 bg-primary text-on-primary absolute top-1/2 left-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border shadow-lg"
+      >
+        <MoveHorizontal class="size-5" aria-hidden="true" />
+      </span>
+    </div>
+
+    <div
+      class="absolute inset-0 z-20 cursor-ew-resize"
+      data-ba-frame
+      aria-hidden="true"
+    >
+    </div>
+  </div>
+
+  <div class="mt-4 flex items-center gap-4">
+    <span class="text-muted text-xs font-medium">{beforeLabel}</span>
+
+    <input
+      type="range"
+      min="0"
+      max="100"
+      step="1"
+      value="50"
+      class="accent-primary w-full cursor-ew-resize"
+      aria-label="Geser untuk membandingkan sebelum dan sesudah"
+      data-ba-range
+    />
+
+    <span class="text-muted text-xs font-medium">{afterLabel}</span>
+  </div>
+
+  {
+    caption && (
+      <figcaption class="text-muted mt-3 text-sm leading-relaxed">
+        {caption}
+      </figcaption>
+    )
+  }
+
+  {note && <p class="text-muted mt-1 text-xs leading-relaxed">{note}</p>}
+</figure>
+
+<script>
+  function initBeforeAfterSliders() {
+    document
+      .querySelectorAll<HTMLElement>('[data-before-after]')
+      .forEach((root) => {
+        if (root.dataset.initialized === 'true') return;
+
+        const input = root.querySelector<HTMLInputElement>('[data-ba-range]');
+        const frame = root.querySelector<HTMLElement>('[data-ba-frame]');
+
+        if (!input || !frame) return;
+
+        root.dataset.initialized = 'true';
+
+        const setPosition = (value: number) => {
+          const clamped = Math.min(100, Math.max(0, value));
+
+          root.style.setProperty('--position', `${clamped}%`);
+          input.value = String(clamped);
+          input.setAttribute(
+            'aria-valuetext',
+            `${Math.round(clamped)}% sebelum`
+          );
+        };
+
+        const updateFromPointer = (event: PointerEvent) => {
+          const rect = frame.getBoundingClientRect();
+
+          if (rect.width === 0) return;
+
+          setPosition(((event.clientX - rect.left) / rect.width) * 100);
+        };
+
+        let dragging = false;
+
+        frame.addEventListener('pointerdown', (event) => {
+          dragging = true;
+          frame.setPointerCapture(event.pointerId);
+          updateFromPointer(event);
+        });
+
+        frame.addEventListener('pointermove', (event) => {
+          if (dragging) updateFromPointer(event);
+        });
+
+        const stopDragging = (event: PointerEvent) => {
+          dragging = false;
+
+          if (frame.hasPointerCapture(event.pointerId)) {
+            frame.releasePointerCapture(event.pointerId);
+          }
+        };
+
+        frame.addEventListener('pointerup', stopDragging);
+        frame.addEventListener('pointercancel', stopDragging);
+
+        input.addEventListener('input', () => {
+          setPosition(Number(input.value));
+        });
+
+        setPosition(Number(input.value));
+      });
+  }
+
+  initBeforeAfterSliders();
+  document.addEventListener('astro:page-load', initBeforeAfterSliders);
+</script>

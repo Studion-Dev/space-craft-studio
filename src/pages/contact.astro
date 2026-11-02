@@ -1,0 +1,16 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHeader from '../components/ui/PageHeader.astro';
+import BookingForm from '../components/sections/BookingForm.astro';
+import { contactContent } from '../config/content/contact';
+
+const { hero, booking } = contactContent;
+---
+
+<Layout
+  title="Kontak & Booking Survei"
+  description="Jadwalkan survei lokasi gratis untuk area Jabodetabek. Lihat alamat workshop, jam operasional, dan kontak admin SpaceCraft Studio."
+>
+  <PageHeader content={hero} />
+  <BookingForm content={booking} />
+</Layout>

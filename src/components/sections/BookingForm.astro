@@ -1,0 +1,449 @@
+---
+import { Image } from 'astro:assets';
+import { CalendarDays, Check, Mail, MapPin, Phone } from '@lucide/astro';
+import {
+  getFormattedAddress,
+  getWhatsAppUrl,
+  siteConfig,
+} from '../../config/site';
+import SectionHeading from '../ui/SectionHeading.astro';
+import WhatsAppIcon from '../ui/WhatsAppIcon.astro';
+import type { BookingContent } from '../../config/types';
+
+interface Props {
+  content: BookingContent;
+}
+
+const { content } = Astro.props;
+
+const whatsappUrl = getWhatsAppUrl();
+const address = getFormattedAddress();
+const mapSearchUrl = address
+  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      address
+    )}`
+  : null;
+
+const fieldClass =
+  'border-border bg-surface text-foreground placeholder:text-muted/60 focus:border-primary focus:ring-primary/20 w-full rounded-lg border px-4 py-3 text-sm transition outline-none focus:ring-2';
+---
+
+<section id="booking" class="scroll-mt-24 px-4 pb-20 sm:px-6 lg:px-8 lg:pb-28">
+  <div class="mx-auto max-w-7xl">
+    <div
+      class="border-border bg-card grid overflow-hidden rounded-3xl border lg:grid-cols-12"
+    >
+      <div
+        class="bg-primary text-on-primary relative overflow-hidden p-7 sm:p-10 lg:col-span-5 lg:p-12"
+      >
+        <div
+          class="border-on-primary/10 pointer-events-none absolute -top-16 -right-16 size-52 rounded-full border"
+          aria-hidden="true"
+        >
+        </div>
+
+        <div class="relative">
+          <SectionHeading
+            eyebrow={content.eyebrow}
+            title={content.title}
+            description={content.description}
+            inverted
+            class="max-w-md"
+          />
+
+          <ul class="border-on-primary/20 mt-8 space-y-4 border-t pt-6 text-sm">
+            {
+              address && (
+                <li class="flex items-start gap-3">
+                  <MapPin
+                    class="text-brand-secondary mt-0.5 size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <span class="text-on-primary/85">{address}</span>
+                </li>
+              )
+            }
+
+            <li class="flex items-start gap-3">
+              <CalendarDays
+                class="text-brand-secondary mt-0.5 size-4 shrink-0"
+                aria-hidden="true"
+              />
+              <span class="text-on-primary/85">{siteConfig.contact.hours}</span>
+            </li>
+
+            {
+              whatsappUrl && (
+                <li class="flex items-start gap-3">
+                  <WhatsAppIcon class="text-brand-secondary mt-0.5 size-4 shrink-0" />
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-on-primary hover:text-brand-secondary underline-offset-4 transition-colors hover:underline"
+                  >
+                    Chat WhatsApp admin
+                  </a>
+                </li>
+              )
+            }
+
+            {
+              siteConfig.contact.email && (
+                <li class="flex items-start gap-3">
+                  <Mail
+                    class="text-brand-secondary mt-0.5 size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <a
+                    href={`mailto:${siteConfig.contact.email}`}
+                    class="text-on-primary/85 hover:text-brand-secondary break-all underline-offset-4 transition-colors hover:underline"
+                  >
+                    {siteConfig.contact.email}
+                  </a>
+                </li>
+              )
+            }
+
+            {
+              siteConfig.contact.phone && (
+                <li class="flex items-start gap-3">
+                  <Phone
+                    class="text-brand-secondary mt-0.5 size-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <a
+                    href={`tel:${siteConfig.contact.phone.replace(/\s/g, '')}`}
+                    class="text-on-primary/85 hover:text-brand-secondary underline-offset-4 transition-colors hover:underline"
+                  >
+                    {siteConfig.contact.phone}
+                  </a>
+                </li>
+              )
+            }
+          </ul>
+
+          {
+            content.map && mapSearchUrl && (
+              <div class="border-on-primary/20 mt-8 border-t pt-6">
+                <h3 class="text-on-primary text-sm font-semibold">
+                  {content.map.title}
+                </h3>
+                <p class="text-on-primary/85 mt-1 text-xs leading-relaxed">
+                  {content.map.note}
+                </p>
+
+                <a
+                  href={mapSearchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={content.map.linkLabel}
+                  class="group border-on-primary/20 focus-visible:outline-brand-secondary relative mt-3 block overflow-hidden rounded-xl border focus-visible:outline-2 focus-visible:outline-offset-4"
+                >
+                  <Image
+                    src={content.map.image}
+                    alt={content.map.imageAlt}
+                    widths={[400, 600, 800]}
+                    sizes="(min-width: 1024px) 380px, 100vw"
+                    loading="lazy"
+                    decoding="async"
+                    class="aspect-[16/10] w-full object-cover saturate-[0.8] transition-transform duration-500 group-hover:scale-[1.02] motion-reduce:transition-none"
+                  />
+
+                  <span class="bg-card/90 text-foreground absolute bottom-3 left-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
+                    <MapPin class="size-3.5" aria-hidden="true" />
+                    {content.map.linkLabel}
+                  </span>
+                </a>
+
+                <p class="text-on-primary/60 mt-2 text-[10px] leading-relaxed">
+                  {content.map.attribution}
+                </p>
+              </div>
+            )
+          }
+        </div>
+      </div>
+
+      <div class="p-7 sm:p-10 lg:col-span-7 lg:p-12">
+        <h3
+          class="font-heading text-foreground text-2xl font-medium tracking-[-0.02em]"
+        >
+          Isi detail survei
+        </h3>
+
+        <p class="text-muted mt-2 text-sm leading-relaxed">
+          Semakin lengkap informasinya, semakin cepat kami menyiapkan
+          rekomendasi.
+        </p>
+
+        {
+          whatsappUrl ? (
+            <form
+              class="mt-7 space-y-5"
+              method="get"
+              action={whatsappUrl}
+              data-booking-form
+              data-wa-base={whatsappUrl}
+              data-business={siteConfig.name}
+            >
+              <div class="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label
+                    for="booking-name"
+                    class="text-foreground mb-1.5 block text-sm font-medium"
+                  >
+                    Nama
+                  </label>
+                  <input
+                    id="booking-name"
+                    name="name"
+                    type="text"
+                    required
+                    autocomplete="name"
+                    class={fieldClass}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    for="booking-phone"
+                    class="text-foreground mb-1.5 block text-sm font-medium"
+                  >
+                    Nomor WhatsApp
+                  </label>
+                  <input
+                    id="booking-phone"
+                    name="phone"
+                    type="tel"
+                    required
+                    autocomplete="tel"
+                    class={fieldClass}
+                  />
+                </div>
+              </div>
+
+              <div class="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label
+                    for="booking-location"
+                    class="text-foreground mb-1.5 block text-sm font-medium"
+                  >
+                    Lokasi survei
+                  </label>
+                  <input
+                    id="booking-location"
+                    name="location"
+                    type="text"
+                    required
+                    autocomplete="street-address"
+                    class={fieldClass}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    for="booking-area"
+                    class="text-foreground mb-1.5 block text-sm font-medium"
+                  >
+                    Luas ruangan
+                  </label>
+                  <div class="relative">
+                    <input
+                      id="booking-area"
+                      name="area"
+                      type="number"
+                      min="10"
+                      max="200"
+                      step="1"
+                      required
+                      inputmode="numeric"
+                      class={`${fieldClass} pr-10`}
+                    />
+                    <span class="text-muted pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-xs">
+                      m²
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label
+                    for="booking-package"
+                    class="text-foreground mb-1.5 block text-sm font-medium"
+                  >
+                    Paket yang diminati
+                  </label>
+                  <select
+                    id="booking-package"
+                    name="package"
+                    class={fieldClass}
+                  >
+                    {content.packages.map((item) => (
+                      <option value={item}>{item}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    for="booking-date"
+                    class="text-foreground mb-1.5 block text-sm font-medium"
+                  >
+                    Tanggal preferensi
+                    <span class="text-muted ml-1 text-xs font-normal">
+                      (opsional)
+                    </span>
+                  </label>
+                  <input
+                    id="booking-date"
+                    name="date"
+                    type="date"
+                    class={fieldClass}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  for="booking-notes"
+                  class="text-foreground mb-1.5 block text-sm font-medium"
+                >
+                  Catatan
+                  <span class="text-muted ml-1 text-xs font-normal">
+                    (opsional)
+                  </span>
+                </label>
+                <textarea
+                  id="booking-notes"
+                  name="notes"
+                  rows="3"
+                  class={fieldClass}
+                />
+              </div>
+
+              <button
+                type="submit"
+                class="bg-primary hover:bg-primary-hover focus-visible:outline-primary text-on-primary inline-flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4"
+              >
+                <WhatsAppIcon class="size-4" />
+                {content.submitLabel}
+              </button>
+
+              <p class="text-muted text-xs leading-relaxed">{content.note}</p>
+            </form>
+          ) : (
+            <p class="border-border text-muted mt-7 rounded-lg border border-dashed p-5 text-sm leading-relaxed">
+              Nomor WhatsApp belum diisi. Lengkapi
+              <code class="text-foreground">siteConfig.contact.whatsapp</code>
+              di
+              <code class="text-foreground">src/config/site.ts</code>.
+            </p>
+          )
+        }
+
+        {
+          content.afterSubmit && (
+            <div class="border-border mt-6 border-t pt-5">
+              <h4 class="text-foreground text-xs font-semibold">
+                {content.afterSubmit.title}
+              </h4>
+
+              <ul class="mt-3 space-y-2">
+                {content.afterSubmit.items.map((item) => (
+                  <li class="text-muted flex items-start gap-2 text-xs leading-relaxed">
+                    <Check
+                      class="text-primary mt-0.5 size-3.5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+
+        {
+          content.helper && (
+            <div class="border-border bg-surface-muted mt-5 rounded-xl border p-4">
+              <p class="text-foreground text-xs font-semibold">
+                {content.helper.title}
+              </p>
+              <p class="text-muted mt-1 text-xs leading-relaxed">
+                {content.helper.description}
+              </p>
+            </div>
+          )
+        }
+
+        <noscript>
+          <p class="text-muted mt-4 text-sm leading-relaxed">
+            Form ini membutuhkan JavaScript. Aktifkan JavaScript, atau
+            <a
+              href={whatsappUrl ?? '/'}
+              class="text-primary font-semibold underline underline-offset-4"
+            >
+              chat langsung via WhatsApp
+            </a>.
+          </p>
+        </noscript>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function initBookingForms() {
+    document
+      .querySelectorAll<HTMLFormElement>('[data-booking-form]')
+      .forEach((form) => {
+        if (form.dataset.initialized === 'true') return;
+
+        form.dataset.initialized = 'true';
+
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+
+          if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+          }
+
+          const data = new FormData(form);
+          const name = String(data.get('name') ?? '').trim();
+          const phone = String(data.get('phone') ?? '').trim();
+          const location = String(data.get('location') ?? '').trim();
+          const area = String(data.get('area') ?? '').trim();
+          const packageName = String(data.get('package') ?? '').trim();
+          const date = String(data.get('date') ?? '').trim();
+          const notes = String(data.get('notes') ?? '').trim();
+          const business = form.dataset.business?.trim() ?? '';
+          const base = form.dataset.waBase ?? '';
+
+          if (!base) return;
+
+          const lines = [
+            `Halo ${business}, saya ${name}.`,
+            'Saya ingin menjadwalkan survei lokasi.',
+            `Lokasi: ${location}`,
+            `Luas ruangan: ${area} m²`,
+            `Paket: ${packageName}`,
+          ];
+
+          if (phone) lines.push(`Nomor WhatsApp: ${phone}`);
+          if (date) lines.push(`Tanggal preferensi: ${date}`);
+          if (notes) lines.push(`Catatan: ${notes}`);
+
+          const text = lines.join('\n');
+          const url = `${base}?text=${encodeURIComponent(text)}`;
+
+          window.open(url, '_blank', 'noopener,noreferrer');
+        });
+      });
+  }
+
+  initBookingForms();
+  document.addEventListener('astro:page-load', initBookingForms);
+</script>

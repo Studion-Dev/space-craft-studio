@@ -1,0 +1,339 @@
+---
+import { Check } from '@lucide/astro';
+import WhatsAppIcon from '../ui/WhatsAppIcon.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import { getWhatsAppUrl, siteConfig } from '../../config/site';
+import { calculateEstimate } from '../../lib/estimate';
+import { formatNumber, formatRupiah } from '../../lib/format';
+import type { CalculatorContent } from '../../config/types';
+
+interface Props {
+  content: CalculatorContent['calculator'];
+}
+
+const { content } = Astro.props;
+
+const initialPackage = content.packages[0];
+const initialTotal = calculateEstimate(
+  content.defaultArea,
+  initialPackage.basePricePerSqm
+);
+const whatsappBaseUrl = getWhatsAppUrl();
+
+const initialMessage = [
+  `Halo ${siteConfig.name}, saya ingin konsultasi.`,
+  `Luas ruangan: ${formatNumber(content.defaultArea)} m²`,
+  `Paket: ${initialPackage.name}`,
+  `Estimasi awal: ${formatRupiah(initialTotal)}`,
+].join('\n');
+
+const initialWhatsappUrl = whatsappBaseUrl
+  ? `${whatsappBaseUrl}?text=${encodeURIComponent(initialMessage)}`
+  : null;
+---
+
+<section
+  id="kalkulator"
+  class="scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
+>
+  <div class="mx-auto max-w-7xl">
+    <div data-reveal="up">
+      <SectionHeading
+        eyebrow={content.eyebrow}
+        title={content.title}
+        description={content.description}
+        class="max-w-2xl"
+      />
+    </div>
+
+    <div
+      class="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8"
+      data-calculator
+      data-wa-base={whatsappBaseUrl ?? ''}
+      data-business={siteConfig.name}
+      data-min-area={content.minArea}
+      data-max-area={content.maxArea}
+    >
+      <div class="min-w-0 lg:col-span-7">
+        <div
+          class="border-border bg-card w-full min-w-0 rounded-2xl border p-6 sm:p-8"
+        >
+          <div class="flex items-baseline justify-between gap-3">
+            <label for="calc-area" class="text-foreground text-sm font-medium">
+              Luas ruangan
+            </label>
+            <span class="text-muted text-xs">
+              {content.minArea}–{content.maxArea} m²
+            </span>
+          </div>
+
+          <div class="relative mt-2">
+            <input
+              id="calc-area"
+              type="number"
+              min={content.minArea}
+              max={content.maxArea}
+              step="1"
+              value={content.defaultArea}
+              inputmode="numeric"
+              class="border-border bg-surface text-foreground focus:border-primary focus:ring-primary/20 w-full rounded-lg border px-4 py-3 pr-12 text-lg font-medium outline-none focus:ring-2"
+              data-calc-area-input
+            />
+            <span
+              class="text-muted pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm"
+            >
+              m²
+            </span>
+          </div>
+
+          <input
+            type="range"
+            min={content.minArea}
+            max={content.maxArea}
+            step="1"
+            value={content.defaultArea}
+            class="accent-primary mt-3 w-full cursor-ew-resize"
+            aria-label="Atur luas ruangan"
+            data-calc-range
+          />
+
+          <fieldset class="mt-7">
+            <legend class="text-foreground text-sm font-medium">Paket</legend>
+
+            <div class="mt-3 space-y-3">
+              {
+                content.packages.map((item, index) => (
+                  <label class="block cursor-pointer">
+                    <input
+                      type="radio"
+                      name="calc-package"
+                      value={item.id}
+                      checked={index === 0}
+                      class="peer sr-only"
+                      data-calc-package
+                      data-rate={item.basePricePerSqm}
+                      data-name={item.name}
+                    />
+
+                    <div class="border-border bg-surface peer-checked:border-primary peer-checked:bg-primary-soft peer-focus-visible:outline-primary rounded-xl border p-4 transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2">
+                      <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p class="text-foreground text-sm font-semibold">
+                            {item.name}
+                          </p>
+                          <p class="text-muted mt-1 text-xs leading-relaxed">
+                            {item.tagline}
+                          </p>
+                        </div>
+                        <div class="shrink-0 text-right">
+                          <p class="font-heading text-foreground text-lg font-medium">
+                            {formatRupiah(item.basePricePerSqm)}
+                          </p>
+                          <p class="text-muted mt-0.5 text-xs">per m²</p>
+                        </div>
+                      </div>
+                    </div>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+        </div>
+      </div>
+
+      <aside class="min-w-0 lg:col-span-5">
+        <div
+          class="border-border bg-surface-muted w-full min-w-0 rounded-2xl border p-6 sm:p-7 lg:sticky lg:top-24"
+        >
+          <dl class="space-y-3 text-sm">
+            <div class="flex items-start justify-between gap-4">
+              <dt class="text-muted">{content.breakdown.packageLabel}</dt>
+              <dd class="text-foreground text-right font-medium" data-calc-name>
+                {initialPackage.name}
+              </dd>
+            </div>
+            <div class="flex items-start justify-between gap-4">
+              <dt class="text-muted">{content.breakdown.rateLabel}</dt>
+              <dd class="text-foreground text-right font-medium" data-calc-rate>
+                {formatRupiah(initialPackage.basePricePerSqm)}/m²
+              </dd>
+            </div>
+            <div class="flex items-start justify-between gap-4">
+              <dt class="text-muted">{content.breakdown.areaLabel}</dt>
+              <dd class="text-foreground text-right font-medium" data-calc-area>
+                {formatNumber(content.defaultArea)} m²
+              </dd>
+            </div>
+
+            <div class="border-border border-t pt-4">
+              <dt class="text-muted text-xs">
+                {content.breakdown.totalLabel}
+              </dt>
+              <dd class="mt-1">
+                <output
+                  class="font-heading text-foreground block text-4xl font-medium tracking-[-0.025em] tabular-nums"
+                  aria-live="polite"
+                  data-calc-total
+                >
+                  {formatRupiah(initialTotal)}
+                </output>
+              </dd>
+            </div>
+          </dl>
+
+          {
+            initialWhatsappUrl ? (
+              <a
+                href={initialWhatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-calc-wa
+                class="bg-primary hover:bg-primary-hover focus-visible:outline-primary text-on-primary mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4"
+              >
+                <WhatsAppIcon class="size-4" />
+                {content.ctaLabel}
+              </a>
+            ) : (
+              <p class="border-border text-muted mt-6 rounded-lg border border-dashed p-4 text-xs leading-relaxed">
+                Nomor WhatsApp belum diisi. Lengkapi
+                <code class="text-foreground">siteConfig.contact.whatsapp</code>
+                untuk mengaktifkan tombol ini.
+              </p>
+            )
+          }
+
+          <p class="text-muted mt-4 text-xs leading-relaxed">
+            {content.note}
+          </p>
+
+          <p class="text-muted mt-2 text-xs leading-relaxed">
+            {content.disclaimer}
+          </p>
+
+          <div class="border-border mt-6 border-t pt-5">
+            <h3 class="text-foreground text-xs font-semibold">
+              {content.inclusions.title}
+            </h3>
+
+            <ul class="mt-3 space-y-2">
+              {
+                content.inclusions.items.map((item) => (
+                  <li class="text-muted flex items-start gap-2 text-xs leading-relaxed">
+                    <Check
+                      class="text-primary mt-0.5 size-3.5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { calculateEstimate, clampArea } from '../../lib/estimate';
+  import { formatNumber, formatRupiah } from '../../lib/format';
+
+  function initCalculators() {
+    document
+      .querySelectorAll<HTMLElement>('[data-calculator]')
+      .forEach((root) => {
+        if (root.dataset.initialized === 'true') return;
+
+        const areaInput = root.querySelector<HTMLInputElement>(
+          '[data-calc-area-input]'
+        );
+        const areaRange =
+          root.querySelector<HTMLInputElement>('[data-calc-range]');
+        const nameOutput = root.querySelector<HTMLElement>('[data-calc-name]');
+        const rateOutput = root.querySelector<HTMLElement>('[data-calc-rate]');
+        const areaOutput = root.querySelector<HTMLElement>('[data-calc-area]');
+        const totalOutput =
+          root.querySelector<HTMLOutputElement>('[data-calc-total]');
+        const whatsappLink =
+          root.querySelector<HTMLAnchorElement>('[data-calc-wa]');
+
+        if (!areaInput || !areaRange || !totalOutput) return;
+
+        root.dataset.initialized = 'true';
+
+        const minArea = Number(root.dataset.minArea ?? 10);
+        const maxArea = Number(root.dataset.maxArea ?? 200);
+        const whatsappBase = root.dataset.waBase ?? '';
+        const business = root.dataset.business ?? '';
+
+        const selectedPackage = () =>
+          root.querySelector<HTMLInputElement>('[data-calc-package]:checked');
+
+        const update = (source: 'area' | 'range' | 'package') => {
+          const rawArea =
+            source === 'range'
+              ? Number(areaRange.value)
+              : Number(areaInput.value);
+          const area = clampArea(
+            Number.isFinite(rawArea) ? rawArea : minArea,
+            minArea,
+            maxArea
+          );
+
+          if (source === 'range') areaInput.value = String(area);
+
+          areaRange.value = String(area);
+
+          const packageInput = selectedPackage();
+          const rate = Number(packageInput?.dataset.rate ?? 0);
+          const packageName = packageInput?.dataset.name ?? '';
+          const total = calculateEstimate(area, rate);
+
+          if (nameOutput) nameOutput.textContent = packageName;
+          if (rateOutput) {
+            rateOutput.textContent = `${formatRupiah(rate)}/m²`;
+          }
+          if (areaOutput) {
+            areaOutput.textContent = `${formatNumber(area)} m²`;
+          }
+
+          totalOutput.textContent = formatRupiah(total);
+
+          if (whatsappLink && whatsappBase) {
+            const message = [
+              `Halo ${business}, saya ingin konsultasi.`,
+              `Luas ruangan: ${formatNumber(area)} m²`,
+              `Paket: ${packageName}`,
+              `Estimasi awal: ${formatRupiah(total)}`,
+            ].join('\n');
+
+            whatsappLink.href = `${whatsappBase}?text=${encodeURIComponent(
+              message
+            )}`;
+          }
+        };
+
+        areaInput.addEventListener('input', () => update('area'));
+        areaRange.addEventListener('input', () => update('range'));
+
+        root
+          .querySelectorAll<HTMLInputElement>('[data-calc-package]')
+          .forEach((input) => {
+            input.addEventListener('change', () => update('package'));
+          });
+
+        areaInput.addEventListener('blur', () => {
+          areaInput.value = String(
+            clampArea(Number(areaInput.value), minArea, maxArea)
+          );
+          update('area');
+        });
+
+        update('package');
+      });
+  }
+
+  initCalculators();
+  document.addEventListener('astro:page-load', initCalculators);
+</script>

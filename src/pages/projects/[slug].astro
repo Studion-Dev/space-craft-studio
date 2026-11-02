@@ -1,0 +1,96 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import SectionHeading from '../../components/ui/SectionHeading.astro';
+import BeforeAfterSlider from '../../components/ui/BeforeAfterSlider.astro';
+import StatementBand from '../../components/sections/StatementBand.astro';
+import ProjectGallery from '../../components/sections/ProjectGallery.astro';
+import ChallengeSolution from '../../components/sections/ChallengeSolution.astro';
+import CtaBanner from '../../components/sections/CtaBanner.astro';
+import { projects } from '../../config/content/projects';
+import { projectsPageContent } from '../../config/content/projects-page';
+import type { PageHeaderContent, Project } from '../../config/types';
+
+export function getStaticPaths() {
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const { detail, cta } = projectsPageContent;
+
+const hero = {
+  eyebrow: `${project.category}, ${project.location}`,
+  title: project.title,
+  description: project.description,
+  breadcrumb: [
+    { label: 'Beranda', href: '/' },
+    { label: 'Proyek', href: '/projects' },
+    { label: project.title },
+  ],
+  image: project.afterImage,
+  imageAlt: project.imageAlt,
+  primaryCta: {
+    label: 'Mulai proyek serupa',
+    href: '/contact',
+  },
+  secondaryCta: {
+    label: 'Hitung estimasi',
+    href: '/calculator',
+  },
+  stats: [
+    { value: project.specs.area, label: detail.specsLabels.area },
+    { value: project.specs.duration, label: detail.specsLabels.duration },
+    { value: project.specs.style, label: detail.specsLabels.style },
+  ],
+} satisfies PageHeaderContent;
+---
+
+<Layout title={project.title} description={project.description}>
+  <PageHeader content={hero} />
+
+  <section
+    id="transformasi"
+    class="bg-surface-muted scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
+  >
+    <div class="mx-auto max-w-7xl">
+      <div data-reveal="up">
+        <SectionHeading
+          eyebrow={project.category}
+          title={detail.beforeAfterTitle}
+          description={detail.beforeAfterDescription}
+          class="max-w-2xl"
+        />
+      </div>
+
+      <div data-reveal="up" style="transition-delay: 90ms">
+        <BeforeAfterSlider
+          beforeImage={project.beforeImage}
+          afterImage={project.afterImage}
+          beforeAlt={`Kondisi awal ${project.title}`}
+          afterAlt={`Hasil akhir ${project.title}`}
+          caption={`${project.title}, ${project.location}`}
+          note="Contoh arah transformasi ruang."
+          class="mt-10 lg:mt-14"
+        />
+      </div>
+    </div>
+  </section>
+
+  <StatementBand
+    content={{
+      statement: project.statement,
+      note: project.statementNote,
+    }}
+  />
+
+  <ProjectGallery content={detail.gallery} project={project} />
+  <ChallengeSolution content={detail} project={project} />
+  <CtaBanner content={cta} />
+</Layout>

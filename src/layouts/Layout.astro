@@ -1,0 +1,84 @@
+---
+import SEO from '../components/core/SEO.astro';
+import Navbar from '../components/core/Navbar.astro';
+import Footer from '../components/core/Footer.astro';
+import FloatingWhatsApp from '../components/ui/FloatingWhatsApp.astro';
+import { siteConfig } from '../config/site';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  canonicalURL?: string | URL;
+  noindex?: boolean;
+  lang?: string;
+}
+
+const {
+  title,
+  description,
+  ogImage,
+  canonicalURL,
+  noindex,
+  lang = 'id',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <SEO
+      title={title}
+      description={description}
+      ogImage={ogImage}
+      canonicalURL={canonicalURL}
+      noindex={noindex}
+    />
+
+    <meta name="theme-color" content={siteConfig.seo.themeColor} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <noscript>
+      <style>
+        [data-reveal] {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+      </style>
+    </noscript>
+
+    <slot name="head" />
+  </head>
+
+  <body
+    class="bg-surface text-foreground flex min-h-screen flex-col antialiased"
+  >
+    <a
+      href="#main"
+      class="bg-primary text-on-primary sr-only rounded-lg px-4 py-2 font-semibold focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-100"
+    >
+      Lewati ke konten utama
+    </a>
+
+    <Navbar />
+
+    <main id="main" class="flex-1" tabindex="-1">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <FloatingWhatsApp />
+
+    <script>
+      import '../scripts/reveal.js';
+    </script>
+  </body>
+</html>

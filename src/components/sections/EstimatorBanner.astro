@@ -1,0 +1,297 @@
+---
+import WhatsAppIcon from '../ui/WhatsAppIcon.astro';
+import { getWhatsAppUrl, siteConfig } from '../../config/site';
+import { calculateEstimate } from '../../lib/estimate';
+import { formatNumber, formatRupiah } from '../../lib/format';
+import type { EstimatorContent } from '../../config/types';
+
+interface Props {
+  content: EstimatorContent;
+}
+
+const { content } = Astro.props;
+
+const initialPackage = content.packages[0];
+const initialTotal = calculateEstimate(
+  content.defaultArea,
+  initialPackage.ratePerSqm
+);
+const lowestRate = Math.min(...content.packages.map((item) => item.ratePerSqm));
+const whatsappBaseUrl = getWhatsAppUrl();
+
+const initialMessage = [
+  `Halo ${siteConfig.name}, saya ingin konsultasi.`,
+  `Luas ruangan: ${formatNumber(content.defaultArea)} m²`,
+  `Paket: ${initialPackage.name}`,
+  `Estimasi awal: ${formatRupiah(initialTotal)}`,
+].join('\n');
+
+const initialWhatsappUrl = whatsappBaseUrl
+  ? `${whatsappBaseUrl}?text=${encodeURIComponent(initialMessage)}`
+  : null;
+---
+
+<section id="estimasi" class="scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+  <div class="mx-auto max-w-7xl">
+    <div
+      class="bg-primary text-on-primary relative overflow-hidden rounded-3xl px-6 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-16"
+    >
+      <div
+        class="border-on-primary/10 pointer-events-none absolute -top-24 -right-24 size-72 rounded-full border"
+        aria-hidden="true"
+      >
+      </div>
+      <div
+        class="border-on-primary/10 pointer-events-none absolute -bottom-32 -left-20 size-80 rounded-full border"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div
+        class="relative grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12"
+      >
+        <div class="min-w-0 lg:col-span-5" data-reveal="up">
+          <p class="text-on-primary/85 text-sm font-medium">
+            {content.eyebrow}
+          </p>
+
+          <h2
+            class="font-heading mt-3 text-3xl leading-[1.05] font-medium tracking-[-0.025em] text-balance sm:text-4xl lg:text-5xl"
+          >
+            {content.title}
+          </h2>
+
+          <p class="text-on-primary/85 mt-5 max-w-md text-base leading-relaxed">
+            {content.description}
+          </p>
+
+          <div class="border-on-primary/20 mt-8 border-t pt-5">
+            <p class="text-on-primary/75 text-xs">Harga paket mulai dari</p>
+            <p class="font-heading mt-1 text-2xl font-medium">
+              {formatRupiah(lowestRate)}/m²
+            </p>
+          </div>
+        </div>
+
+        <div class="min-w-0 lg:col-span-7" data-reveal="up">
+          <form
+            class="bg-card text-foreground shadow-foreground/10 w-full min-w-0 rounded-2xl p-5 shadow-2xl sm:p-6 lg:p-7"
+            data-estimator
+            data-wa-base={whatsappBaseUrl ?? ''}
+            data-business={siteConfig.name}
+            data-min-area={content.minArea}
+            data-max-area={content.maxArea}
+          >
+            <div class="flex items-baseline justify-between gap-3">
+              <label
+                for="estimasi-luas"
+                class="text-foreground text-sm font-medium"
+              >
+                Luas ruangan
+              </label>
+              <span class="text-muted text-xs">
+                {content.minArea}–{content.maxArea} m²
+              </span>
+            </div>
+
+            <div class="relative mt-2">
+              <input
+                id="estimasi-luas"
+                name="area"
+                type="number"
+                min={content.minArea}
+                max={content.maxArea}
+                step="1"
+                value={content.defaultArea}
+                inputmode="numeric"
+                class="border-border bg-surface text-foreground focus:border-primary focus:ring-primary/20 w-full rounded-lg border px-4 py-3 pr-12 text-lg font-medium outline-none focus:ring-2"
+                data-area
+              />
+              <span
+                class="text-muted pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm"
+              >
+                m²
+              </span>
+            </div>
+
+            <input
+              type="range"
+              min={content.minArea}
+              max={content.maxArea}
+              step="1"
+              value={content.defaultArea}
+              class="accent-primary mt-3 w-full cursor-ew-resize"
+              aria-label="Atur luas ruangan"
+              data-area-range
+            />
+
+            <label
+              for="estimasi-paket"
+              class="text-foreground mt-5 block text-sm font-medium"
+            >
+              Paket
+            </label>
+
+            <select
+              id="estimasi-paket"
+              name="package"
+              class="border-border bg-surface text-foreground focus:border-primary focus:ring-primary/20 mt-2 w-full min-w-0 rounded-lg border px-4 py-3 text-sm outline-none focus:ring-2"
+              data-package
+            >
+              {
+                content.packages.map((item) => (
+                  <option
+                    value={item.id}
+                    data-rate={item.ratePerSqm}
+                    data-name={item.name}
+                    selected={item.id === initialPackage.id}
+                  >
+                    {item.name}, {formatRupiah(item.ratePerSqm)}/m²
+                  </option>
+                ))
+              }
+            </select>
+
+            <div class="bg-surface-muted mt-5 rounded-xl p-4">
+              <p class="text-muted text-xs">Estimasi awal</p>
+              <output
+                data-total
+                aria-live="polite"
+                class="font-heading text-foreground mt-1 block text-3xl font-medium tracking-[-0.02em] tabular-nums sm:text-4xl"
+              >
+                {formatRupiah(initialTotal)}
+              </output>
+              <p class="text-muted mt-1 text-xs" data-rate-label>
+                {initialPackage.name}, {
+                  formatRupiah(initialPackage.ratePerSqm)
+                }/m²
+              </p>
+            </div>
+
+            {
+              initialWhatsappUrl ? (
+                <a
+                  href={initialWhatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-wa-link
+                  class="bg-primary hover:bg-primary-hover focus-visible:outline-primary text-on-primary mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4"
+                >
+                  <WhatsAppIcon class="size-4" />
+                  {content.ctaLabel}
+                </a>
+              ) : (
+                <p class="border-border text-muted mt-5 rounded-lg border border-dashed p-4 text-xs leading-relaxed">
+                  Nomor WhatsApp belum diisi. Lengkapi
+                  <code class="text-foreground">
+                    siteConfig.contact.whatsapp
+                  </code>
+                  untuk mengaktifkan tombol ini.
+                </p>
+              )
+            }
+
+            <p class="text-muted mt-3 text-xs leading-relaxed">
+              {content.note}
+            </p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { calculateEstimate, clampArea } from '../../lib/estimate';
+  import { formatNumber, formatRupiah } from '../../lib/format';
+
+  function initEstimators() {
+    document
+      .querySelectorAll<HTMLFormElement>('[data-estimator]')
+      .forEach((form) => {
+        if (form.dataset.initialized === 'true') return;
+
+        const areaInput = form.querySelector<HTMLInputElement>('[data-area]');
+        const areaRange =
+          form.querySelector<HTMLInputElement>('[data-area-range]');
+        const packageSelect =
+          form.querySelector<HTMLSelectElement>('[data-package]');
+        const totalOutput =
+          form.querySelector<HTMLOutputElement>('[data-total]');
+        const rateLabel = form.querySelector<HTMLElement>('[data-rate-label]');
+        const whatsappLink =
+          form.querySelector<HTMLAnchorElement>('[data-wa-link]');
+
+        if (!areaInput || !areaRange || !packageSelect || !totalOutput) return;
+
+        form.dataset.initialized = 'true';
+
+        const minArea = Number(form.dataset.minArea ?? 10);
+        const maxArea = Number(form.dataset.maxArea ?? 200);
+        const whatsappBase = form.dataset.waBase ?? '';
+        const business = form.dataset.business ?? '';
+
+        const update = (source: 'area' | 'range' | 'package') => {
+          const rawArea =
+            source === 'range'
+              ? Number(areaRange.value)
+              : Number(areaInput.value);
+          const area = clampArea(
+            Number.isFinite(rawArea) ? rawArea : minArea,
+            minArea,
+            maxArea
+          );
+
+          if (source === 'range') {
+            areaInput.value = String(area);
+          }
+
+          areaRange.value = String(area);
+
+          const option = packageSelect.selectedOptions[0];
+          const rate = Number(option?.dataset.rate ?? 0);
+          const packageName = option?.dataset.name ?? '';
+          const total = calculateEstimate(area, rate);
+
+          totalOutput.textContent = formatRupiah(total);
+
+          if (rateLabel) {
+            rateLabel.textContent = `${packageName}, ${formatRupiah(rate)}/m²`;
+          }
+
+          if (whatsappLink && whatsappBase) {
+            const message = [
+              `Halo ${business}, saya ingin konsultasi.`,
+              `Luas ruangan: ${formatNumber(area)} m²`,
+              `Paket: ${packageName}`,
+              `Estimasi awal: ${formatRupiah(total)}`,
+            ].join('\n');
+
+            whatsappLink.href = `${whatsappBase}?text=${encodeURIComponent(
+              message
+            )}`;
+          }
+        };
+
+        areaInput.addEventListener('input', () => update('area'));
+        areaRange.addEventListener('input', () => update('range'));
+        packageSelect.addEventListener('change', () => update('package'));
+
+        areaInput.addEventListener('blur', () => {
+          areaInput.value = String(
+            clampArea(Number(areaInput.value), minArea, maxArea)
+          );
+          update('area');
+        });
+
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+        });
+
+        update('package');
+      });
+  }
+
+  initEstimators();
+  document.addEventListener('astro:page-load', initEstimators);
+</script>

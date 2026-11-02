@@ -1,0 +1,186 @@
+@import 'tailwindcss';
+
+/*
+ * Folder patterns hanya referensi. Jangan ikut menghasilkan utility sampai
+ * file-nya dicopy ke sections/ atau ui/.
+ */
+@source not '../components/patterns';
+
+/*
+ * Dua lapis token:
+ * 1. Primitive  -> palet mentah (brand-*, neutral-*). Ubah di sini saat ganti brand.
+ * 2. Semantic   -> nama yang dipakai komponen (primary, foreground, surface, dst).
+ * Komponen hanya boleh memakai token semantic.
+ */
+@theme {
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Fraunces', Georgia, 'Times New Roman', serif;
+
+  /* Primitive palette — SpaceCraft Studio (Japandi warm) */
+  --color-brand-50: #eef0eb;
+  --color-brand-100: #e0e4dc;
+  --color-brand-500: #4a5d4e;
+  --color-brand-600: #3f5044;
+  --color-brand-700: #344238;
+
+  --color-neutral-50: #f5f2eb;
+  --color-neutral-100: #ece7db;
+  --color-neutral-200: #ddd6c7;
+  --color-neutral-400: #a9a295;
+  --color-neutral-500: #7e786d;
+  --color-neutral-600: #5f5b52;
+  --color-neutral-700: #48453f;
+  --color-neutral-900: #1f2421;
+
+  --color-accent-500: #c89d7c;
+
+  /*
+   * Semantic tokens
+   * - Teks: foreground / muted
+   * - Brand: primary / brand-secondary / accent
+   */
+  --color-primary: var(--color-brand-500);
+  --color-primary-hover: var(--color-brand-600);
+  /* Warna brand kedua: warm wood dari PRD. */
+  --color-brand-secondary: var(--color-accent-500);
+  --color-accent: var(--color-accent-500);
+  --color-primary-soft: var(--color-brand-50);
+  --color-accent-soft: #f2e7dc;
+  --color-foreground: var(--color-neutral-900);
+  --color-muted: var(--color-neutral-600);
+  --color-surface: var(--color-neutral-50);
+  --color-surface-muted: var(--color-neutral-100);
+  --color-card: #fcfaf5;
+  --color-on-primary: #faf7f0;
+  --color-border: var(--color-neutral-200);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-neutral-400) transparent;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+  }
+
+  ::selection {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-optical-sizing: auto;
+  }
+
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  img,
+  video {
+    height: auto;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-400);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-500);
+}
+
+/* ========================================
+   SCROLL REVEAL
+   Pakai atribut data-reveal, bukan class,
+   supaya tidak bertabrakan dengan utility.
+======================================== */
+
+[data-reveal] {
+  opacity: 0;
+  transition:
+    opacity 600ms ease,
+    transform 600ms ease;
+  will-change: opacity, transform;
+}
+
+[data-reveal='left'] {
+  transform: translate3d(-24px, 0, 0);
+}
+
+[data-reveal='right'] {
+  transform: translate3d(24px, 0, 0);
+}
+
+[data-reveal='up'] {
+  transform: translate3d(0, 24px, 0);
+}
+
+[data-reveal='down'] {
+  transform: translate3d(0, -24px, 0);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Accessibility: hormati preferensi reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+}

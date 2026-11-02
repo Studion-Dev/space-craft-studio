@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import ProjectGrid from '../../components/sections/ProjectGrid.astro';
+import CtaBanner from '../../components/sections/CtaBanner.astro';
+import { projectsPageContent } from '../../config/content/projects-page';
+import { projects } from '../../config/content/projects';
+
+const { hero, grid, cta } = projectsPageContent;
+---
+
+<Layout
+  title="Portofolio Desain Interior"
+  description="Lihat proyek apartemen studio dan rumah compact di Jabodetabek, lengkap dengan tantangan, solusi, dan detail material."
+>
+  <PageHeader content={hero} />
+  <ProjectGrid content={grid} projects={projects} />
+  <CtaBanner content={cta} />
+</Layout>

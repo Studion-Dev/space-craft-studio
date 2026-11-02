@@ -1,0 +1,57 @@
+---
+import type { StatsContent } from '../../config/types';
+
+interface Props {
+  content: StatsContent;
+  class?: string;
+}
+
+const { content, class: className } = Astro.props;
+---
+
+<section
+  class:list={[
+    'bg-surface-muted border-border border-y px-4 py-12 sm:px-6 lg:px-8 lg:py-16',
+    className,
+  ]}
+>
+  <div class="mx-auto max-w-7xl">
+    <div class="grid gap-8 lg:grid-cols-12 lg:items-end">
+      <div class="lg:col-span-5" data-reveal="up">
+        <p class="text-primary text-sm font-medium">{content.eyebrow}</p>
+
+        <h2
+          class="font-heading text-foreground mt-2 text-2xl leading-tight font-medium tracking-[-0.02em] sm:text-3xl"
+        >
+          {content.title}
+        </h2>
+
+        <p class="text-muted mt-3 max-w-md text-sm leading-relaxed">
+          {content.description}
+        </p>
+      </div>
+
+      <dl
+        data-reveal="up"
+        class="grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4 lg:col-span-7"
+      >
+        {
+          content.items.map((item) => (
+            <div class="border-border flex flex-col-reverse gap-1 border-t pt-4">
+              <dt class="text-muted text-xs leading-snug">{item.label}</dt>
+              <dd class="font-heading text-foreground text-3xl leading-none font-medium tracking-[-0.02em] sm:text-4xl">
+                {item.value}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+
+    <p
+      class="border-border text-muted mt-6 border-t pt-3 text-[11px] leading-relaxed"
+    >
+      {content.sourceNote}
+    </p>
+  </div>
+</section>

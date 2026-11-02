@@ -1,0 +1,23 @@
+---
+import WhatsAppIcon from './WhatsAppIcon.astro';
+import { getWhatsAppUrl, siteConfig } from '../../config/site';
+
+const whatsappUrl = getWhatsAppUrl(
+  `Halo ${siteConfig.name}, saya ingin konsultasi desain interior.`
+);
+---
+
+{
+  whatsappUrl && (
+    <a
+      href={whatsappUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Chat WhatsApp ${siteConfig.name}`}
+      class="bg-primary text-on-primary hover:bg-primary-hover focus-visible:outline-primary shadow-foreground/10 fixed right-4 bottom-5 z-40 inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold shadow-lg transition-all hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 motion-reduce:transition-none sm:right-6 sm:bottom-6"
+    >
+      <WhatsAppIcon class="size-5" />
+      <span class="hidden sm:inline">Chat WhatsApp</span>
+    </a>
+  )
+}

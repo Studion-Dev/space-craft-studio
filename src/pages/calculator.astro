@@ -1,0 +1,18 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHeader from '../components/ui/PageHeader.astro';
+import CalculatorForm from '../components/sections/CalculatorForm.astro';
+import CtaBanner from '../components/sections/CtaBanner.astro';
+import { calculatorContent } from '../config/content/calculator';
+
+const { hero, calculator, cta } = calculatorContent;
+---
+
+<Layout
+  title="Kalkulator Estimasi Biaya Renovasi"
+  description="Hitung kisaran biaya renovasi interior berdasarkan luas ruangan dan paket pengerjaan. Kirim hasilnya langsung ke WhatsApp admin."
+>
+  <PageHeader content={hero} />
+  <CalculatorForm content={calculator} />
+  <CtaBanner content={cta} />
+</Layout>

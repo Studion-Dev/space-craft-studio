@@ -1,0 +1,41 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import BeforeAfterSlider from '../ui/BeforeAfterSlider.astro';
+import type { BeforeAfterContent } from '../../config/types';
+
+interface Props {
+  content: BeforeAfterContent;
+}
+
+const { content } = Astro.props;
+---
+
+<section
+  id="transformasi"
+  class="bg-surface-muted scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
+>
+  <div class="mx-auto max-w-7xl">
+    <div data-reveal="up">
+      <SectionHeading
+        eyebrow={content.eyebrow}
+        title={content.title}
+        description={content.description}
+        class="max-w-3xl"
+      />
+    </div>
+
+    <div data-reveal="up" style="transition-delay: 100ms">
+      <BeforeAfterSlider
+        beforeImage={content.beforeImage}
+        afterImage={content.afterImage}
+        beforeAlt={content.beforeAlt}
+        afterAlt={content.afterAlt}
+        beforeLabel={content.beforeLabel}
+        afterLabel={content.afterLabel}
+        caption={content.caption}
+        note={content.note}
+        class="mt-10 lg:mt-14"
+      />
+    </div>
+  </div>
+</section>

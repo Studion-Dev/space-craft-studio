@@ -1,0 +1,28 @@
+---
+import type { StatementContent } from '../../config/types';
+
+interface Props {
+  content: StatementContent;
+  class?: string;
+}
+
+const { content, class: className } = Astro.props;
+---
+
+<section class:list={['px-4 py-12 sm:px-6 lg:px-8 lg:py-16', className]}>
+  <div
+    data-reveal="up"
+    class="border-brand-secondary/30 bg-accent-soft mx-auto max-w-5xl rounded-3xl border px-6 py-10 text-center sm:px-10 lg:px-14 lg:py-12"
+  >
+    <span class="bg-brand-secondary mx-auto block h-0.5 w-10" aria-hidden="true"
+    ></span>
+
+    <p
+      class="font-heading text-foreground mt-5 text-2xl leading-snug tracking-[-0.02em] text-balance sm:text-3xl lg:text-4xl"
+    >
+      {content.statement}
+    </p>
+
+    <p class="text-muted mt-4 text-sm leading-relaxed">{content.note}</p>
+  </div>
+</section>

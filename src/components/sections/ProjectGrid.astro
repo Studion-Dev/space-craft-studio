@@ -1,0 +1,190 @@
+---
+import { Image } from 'astro:assets';
+import { ArrowUpRight } from '@lucide/astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import type { Project, ProjectsPageContent } from '../../config/types';
+
+interface Props {
+  content: ProjectsPageContent['grid'];
+  projects: Project[];
+}
+
+const { content, projects } = Astro.props;
+---
+
+<section id="proyek" class="scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+  <div class="mx-auto max-w-7xl">
+    <div data-reveal="up">
+      <SectionHeading
+        eyebrow={content.eyebrow}
+        title={content.title}
+        description={content.description}
+        class="max-w-2xl"
+      />
+    </div>
+
+    <div
+      class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <div
+        class="flex flex-wrap gap-2"
+        role="group"
+        aria-label="Filter kategori proyek"
+      >
+        {
+          content.filters.map((filter, index) => (
+            <button
+              type="button"
+              data-filter={filter.value}
+              aria-pressed={index === 0 ? 'true' : 'false'}
+              class:list={[
+                'rounded-full border px-4 py-2 text-sm font-medium transition-colors',
+                index === 0
+                  ? 'border-primary bg-primary text-on-primary'
+                  : 'border-border bg-card text-muted hover:border-primary hover:text-primary',
+              ]}
+            >
+              {filter.label}
+            </button>
+          ))
+        }
+      </div>
+
+      <p class="text-muted text-sm" aria-live="polite">
+        <span data-project-count>{projects.length}</span>{' '}
+        {content.resultLabel}
+      </p>
+    </div>
+
+    <div
+      class="mt-10 grid gap-10 md:grid-cols-2 md:gap-x-6 md:gap-y-12"
+      data-project-grid
+    >
+      {
+        projects.map((project, index) => (
+          <article
+            data-project-card
+            data-category={project.category}
+            data-reveal="up"
+            style={`transition-delay: ${index * 70}ms`}
+            class:list={['min-w-0', index % 2 === 1 && 'md:mt-16']}
+          >
+            <a
+              href={`/projects/${project.slug}`}
+              class="group focus-visible:outline-primary block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-4"
+            >
+              <div class="border-border bg-surface-muted relative aspect-[4/3] overflow-hidden rounded-2xl border">
+                <Image
+                  src={project.afterImage}
+                  alt={project.imageAlt}
+                  widths={[480, 720, 1080]}
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  loading="lazy"
+                  decoding="async"
+                  class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none"
+                />
+
+                <span class="bg-card/90 text-foreground absolute top-4 left-4 rounded-full px-3 py-1 text-xs font-medium backdrop-blur-sm">
+                  {project.category}
+                </span>
+              </div>
+
+              <div class="mt-5 flex items-start justify-between gap-4">
+                <div>
+                  <h3 class="font-heading text-foreground text-xl leading-tight font-medium tracking-[-0.02em] sm:text-2xl">
+                    {project.title}
+                  </h3>
+                  <p class="text-muted mt-2 text-sm">
+                    {project.location}, {project.areaSqm} m²,{' '}
+                    {project.specs.style}
+                  </p>
+                </div>
+
+                <span
+                  class="border-border text-muted group-hover:border-primary group-hover:text-primary flex size-9 shrink-0 items-center justify-center rounded-full border transition-colors"
+                  aria-hidden="true"
+                >
+                  <ArrowUpRight class="size-4" />
+                </span>
+              </div>
+
+              <p class="text-muted mt-3 max-w-xl text-sm leading-relaxed">
+                {project.description}
+              </p>
+            </a>
+          </article>
+        ))
+      }
+    </div>
+
+    <p
+      class="border-border text-muted mt-10 rounded-xl border border-dashed p-5 text-sm"
+      data-project-empty
+      hidden
+    >
+      {content.empty}
+    </p>
+  </div>
+</section>
+
+<script>
+  function initProjectFilters() {
+    document
+      .querySelectorAll<HTMLElement>('[data-project-grid]')
+      .forEach((grid) => {
+        if (grid.dataset.initialized === 'true') return;
+
+        const section = grid.closest('section');
+        if (!section) return;
+
+        const buttons =
+          section.querySelectorAll<HTMLButtonElement>('[data-filter]');
+        const cards = grid.querySelectorAll<HTMLElement>('[data-project-card]');
+        const count = section.querySelector<HTMLElement>(
+          '[data-project-count]'
+        );
+        const empty = section.querySelector<HTMLElement>(
+          '[data-project-empty]'
+        );
+
+        if (!buttons.length || !cards.length) return;
+
+        grid.dataset.initialized = 'true';
+
+        const applyFilter = (value: string) => {
+          let visible = 0;
+
+          cards.forEach((card) => {
+            const show = value === 'all' || card.dataset.category === value;
+
+            card.hidden = !show;
+            if (show) visible += 1;
+          });
+
+          buttons.forEach((button) => {
+            const pressed = button.dataset.filter === value;
+
+            button.setAttribute('aria-pressed', String(pressed));
+            button.className = [
+              'rounded-full border px-4 py-2 text-sm font-medium transition-colors',
+              pressed
+                ? 'border-primary bg-primary text-on-primary'
+                : 'border-border bg-card text-muted hover:border-primary hover:text-primary',
+            ].join(' ');
+          });
+
+          if (count) count.textContent = String(visible);
+          if (empty) empty.hidden = visible !== 0;
+        };
+
+        buttons.forEach((button) => {
+          button.addEventListener('click', () => {
+            applyFilter(button.dataset.filter ?? 'all');
+          });
+        });
+      });
+  }
+
+  initProjectFilters();
+  document.addEventListener('astro:page-load', initProjectFilters);
+</script>

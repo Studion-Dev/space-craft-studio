@@ -1,0 +1,34 @@
+---
+import Layout from '../layouts/Layout.astro';
+import HomeHero from '../components/sections/HomeHero.astro';
+import BeforeAfterSection from '../components/sections/BeforeAfterSection.astro';
+import BentoUsps from '../components/sections/BentoUsps.astro';
+import StatementBand from '../components/sections/StatementBand.astro';
+import FeaturedProjects from '../components/sections/FeaturedProjects.astro';
+import EstimatorBanner from '../components/sections/EstimatorBanner.astro';
+import Testimonials from '../components/sections/Testimonials.astro';
+import BookingForm from '../components/sections/BookingForm.astro';
+import { homeContent } from '../config/content/home';
+
+const {
+  hero,
+  beforeAfter,
+  usps,
+  statement,
+  featuredProjects,
+  estimator,
+  testimonials,
+  booking,
+} = homeContent;
+---
+
+<Layout>
+  <HomeHero content={hero} />
+  <BeforeAfterSection content={beforeAfter} />
+  <BentoUsps content={usps} />
+  <StatementBand content={statement} />
+  <FeaturedProjects content={featuredProjects} />
+  <EstimatorBanner content={estimator} />
+  <Testimonials content={testimonials} />
+  <BookingForm content={booking} />
+</Layout>

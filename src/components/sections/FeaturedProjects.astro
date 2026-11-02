@@ -1,0 +1,98 @@
+---
+import { Image } from 'astro:assets';
+import { ArrowRight } from '@lucide/astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import type { FeaturedProjectsContent } from '../../config/types';
+
+interface Props {
+  content: FeaturedProjectsContent;
+}
+
+const { content } = Astro.props;
+
+const layouts = [
+  'lg:col-span-7',
+  'lg:col-span-5 lg:mt-16',
+  'lg:col-span-6 lg:col-start-4 lg:mt-4',
+];
+
+const aspectClasses = [
+  'aspect-[4/3]',
+  'aspect-[4/3] lg:aspect-[4/5]',
+  'aspect-[4/3]',
+];
+---
+
+<section
+  id="proyek"
+  class="bg-surface-muted scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
+>
+  <div class="mx-auto max-w-7xl">
+    <div
+      class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"
+    >
+      <div data-reveal="up">
+        <SectionHeading
+          eyebrow={content.eyebrow}
+          title={content.title}
+          description={content.description}
+        />
+      </div>
+
+      <a
+        href="#booking"
+        class="text-primary hover:text-primary-hover inline-flex shrink-0 items-center gap-2 text-sm font-semibold transition-colors"
+      >
+        Mulai dari survei
+        <ArrowRight class="size-4" aria-hidden="true" />
+      </a>
+    </div>
+
+    <div class="mt-12 grid gap-10 lg:grid-cols-12 lg:gap-6">
+      {
+        content.projects.slice(0, 3).map((project, index) => (
+          <article
+            data-reveal="up"
+            style={`transition-delay: ${index * 80}ms`}
+            class:list={['min-w-0', layouts[index] ?? 'lg:col-span-6']}
+          >
+            <div
+              class:list={[
+                'border-border bg-surface-muted relative overflow-hidden rounded-2xl border',
+                aspectClasses[index] ?? 'aspect-[4/3]',
+              ]}
+            >
+              <Image
+                src={project.afterImage}
+                alt={project.imageAlt}
+                widths={[480, 720, 1080, 1400]}
+                sizes="(min-width: 1024px) 58vw, 100vw"
+                loading="lazy"
+                decoding="async"
+                class="h-full w-full object-cover"
+              />
+
+              <span class="bg-card/90 text-foreground absolute top-4 left-4 rounded-full px-3 py-1 text-xs font-medium backdrop-blur-sm">
+                {project.category}
+              </span>
+            </div>
+
+            <div class="mt-5">
+              <h3 class="font-heading text-foreground text-xl leading-tight font-medium tracking-[-0.02em] sm:text-2xl">
+                {project.title}
+              </h3>
+
+              <p class="text-muted mt-2 text-sm">
+                {project.location}, {project.areaSqm} m², {project.specs.style}
+              </p>
+
+              <p class="text-muted mt-3 max-w-xl text-sm leading-relaxed">
+                {project.description}
+              </p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

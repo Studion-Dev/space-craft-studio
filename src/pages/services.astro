@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHeader from '../components/ui/PageHeader.astro';
+import StatsSection from '../components/sections/StatsSection.astro';
+import PackageComparison from '../components/sections/PackageComparison.astro';
+import Workflow from '../components/sections/Workflow.astro';
+import StatementBand from '../components/sections/StatementBand.astro';
+import MaterialTransparency from '../components/sections/MaterialTransparency.astro';
+import FaqSection from '../components/sections/FaqSection.astro';
+import BookingForm from '../components/sections/BookingForm.astro';
+import { servicesContent } from '../config/content/services';
+
+const { hero, stats, packages, workflow, statement, materials, faq, booking } =
+  servicesContent;
+---
+
+<Layout
+  title="Layanan & Harga Renovasi Interior"
+  description="Bandingkan paket full renovation, custom furniture, dan desain 3D untuk apartemen studio dan rumah compact di Jabodetabek."
+>
+  <PageHeader content={hero} />
+  <StatsSection content={stats} />
+  <PackageComparison content={packages} />
+  <Workflow content={workflow} />
+  <StatementBand content={statement} />
+  <MaterialTransparency content={materials} />
+  <FaqSection content={faq} />
+  <BookingForm content={booking} />
+</Layout>
